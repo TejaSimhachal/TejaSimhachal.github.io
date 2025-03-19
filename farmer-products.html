@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Products</title>
+    <link rel="stylesheet" href="common-styles.css">
+    <style>
+        :root {
+            --gradient-primary: linear-gradient(135deg, #4CAF50, #45a049);
+            --gradient-hover: linear-gradient(135deg, #45a049, #357a38);
+            --shadow-soft: 0 4px 6px rgba(0, 0, 0, 0.07);
+            --shadow-medium: 0 6px 12px rgba(0, 0, 0, 0.1);
+            --shadow-large: 0 8px 24px rgba(0, 0, 0, 0.12);
+            --border-radius: 16px;
+            --spacing-unit: 8px;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-medium);
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            font-size: 0.95em;
+        }
+
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.1);
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .add-btn {
+            background: var(--gradient-primary);
+            color: white;
+        }
+
+        .add-btn:hover {
+            background: var(--gradient-hover);
+            transform: translateY(-2px);
+        }
+
+        .back-btn {
+            background-color: #f8f9fa;
+            color: #666;
+            text-decoration: none;
+            border: 2px solid #ddd;
+        }
+
+        .back-btn:hover {
+            background-color: #e9ecef;
+            border-color: #666;
+        }
+
+        .products-list {
+            margin-top: 40px;
+        }
+
+        .products-list h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 20px;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-soft);
+        }
+
+        th, td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        th {
+            background: var(--gradient-primary);
+            color: white;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 0.5px;
+        }
+
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-right: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .edit-btn:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .delete-btn {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .delete-btn:hover {
+            background-color: #d32f2f;
+            transform: translateY(-2px);
+        }
+
+        .product-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: var(--shadow-soft);
+            transition: transform 0.3s ease;
+        }
+
+        .product-image:hover {
+            transform: scale(1.1);
+        }
+
+        #productImage {
+            display: none;
+        }
+
+        .image-upload-btn {
+            background-color: #f8f9fa;
+            border: 2px dashed #ddd;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload-btn:hover {
+            border-color: #4CAF50;
+            background-color: #f1f8e9;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 16px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+                white-space: nowrap;
+            }
+
+            .btn {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            .action-btn {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+        }
+
+        /* Add loading animation */
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        /* Success message styling */
+        .success-message {
+            background-color: #4CAF50;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Error message styling */
+        .error-message {
+            background-color: #f44336;
+            color: white;
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="farmer-dashboard.html" class="btn back-btn">
+            <i class="material-icons">arrow_back</i>
+            Back to Dashboard
+        </a>
+        <h1>Manage Your Products</h1>
+
+        <!-- Add success message container -->
+        <div id="messageContainer"></div>
+
+        <form id="productForm">
+            <div class="form-group">
+                <label for="productName">Product Name</label>
+                <input type="text" id="productName" required>
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                <select id="category" required>
+                    <option value="">Select Category</option>
+                    <option value="vegetables">Vegetables</option>
+                    <option value="fruits">Fruits</option>
+                    <option value="grains">Grains</option>
+                    <option value="dairy">Dairy</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="quantity">Available Quantity (kg)</label>
+                <input type="number" id="quantity" min="0" required>
+            </div>
+
+            <div class="form-group">
+                <label for="price">Price per kg (₹)</label>
+                <input type="number" id="price" min="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Farm Location</label>
+                <input type="text" id="location" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Product Description</label>
+                <textarea id="description" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="productImage">Product Image</label>
+                <input type="file" id="productImage" accept="image/*">
+                <button type="button" class="btn" onclick="document.getElementById('productImage').click()">
+                    Choose Image
+                </button>
+            </div>
+
+            <button type="submit" class="btn add-btn">Add Product</button>
+        </form>
+
+        <div class="products-list">
+            <h2>Your Products</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Location</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsList">
+                    <!-- Products will be listed here -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Add empty state for products list -->
+        <div id="emptyState" class="empty-state" style="display: none;">
+            <i class="material-icons">inventory</i>
+            <p>No products added yet. Start by adding your first product!</p>
+        </div>
+    </div>
+
+    <script>
+        // Load existing products when page loads
+        window.addEventListener('load', function() {
+            const farmerEmail = sessionStorage.getItem('currentUserEmail');
+            if (!farmerEmail) {
+                window.location.href = 'login-signup.html';
+                return;
+            }
+            displayProducts();
+        });
+
+        // Handle product image
+        document.getElementById('productImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    sessionStorage.setItem('tempProductImage', e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const farmerEmail = sessionStorage.getItem('currentUserEmail');
+            const product = {
+                id: Date.now(),
+                name: document.getElementById('productName').value,
+                category: document.getElementById('category').value,
+                quantity: document.getElementById('quantity').value,
+                price: document.getElementById('price').value,
+                location: document.getElementById('location').value,
+                description: document.getElementById('description').value,
+                image: sessionStorage.getItem('tempProductImage') || '',
+                farmerEmail: farmerEmail
+            };
+
+            // Get existing products
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            products.push(product);
+            
+            // Save updated products
+            localStorage.setItem('products', JSON.stringify(products));
+            
+            // Clear form and temp storage
+            this.reset();
+            sessionStorage.removeItem('tempProductImage');
+            
+            // Refresh products display
+            displayProducts();
+            
+            alert('Product added successfully!');
+        });
+
+        function displayProducts() {
+            const farmerEmail = sessionStorage.getItem('currentUserEmail');
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const farmerProducts = products.filter(product => product.farmerEmail === farmerEmail);
+            
+            const productsList = document.getElementById('productsList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (farmerProducts.length === 0) {
+                emptyState.style.display = 'block';
+                productsList.innerHTML = '';
+            } else {
+                emptyState.style.display = 'none';
+                productsList.innerHTML = farmerProducts.map(product => `
+                    <tr>
+                        <td><img src="${product.image || 'default-product.png'}" alt="${product.name}" class="product-image"></td>
+                        <td>${product.name}</td>
+                        <td>${product.category}</td>
+                        <td>${product.quantity} kg</td>
+                        <td>₹${product.price}/kg</td>
+                        <td>${product.location}</td>
+                        <td>
+                            <button class="action-btn edit-btn" onclick="editProduct(${product.id})">
+                                <i class="material-icons">edit</i> Edit
+                            </button>
+                            <button class="action-btn delete-btn" onclick="deleteProduct(${product.id})">
+                                <i class="material-icons">delete</i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function deleteProduct(productId) {
+            if (confirm('Are you sure you want to delete this product?')) {
+                let products = JSON.parse(localStorage.getItem('products')) || [];
+                products = products.filter(product => product.id !== productId);
+                localStorage.setItem('products', JSON.stringify(products));
+                displayProducts();
+                showMessage('Product deleted successfully');
+            }
+        }
+
+        function editProduct(productId) {
+            const products = JSON.parse(localStorage.getItem('products')) || [];
+            const product = products.find(p => p.id === productId);
+            
+            if (product) {
+                document.getElementById('productName').value = product.name;
+                document.getElementById('category').value = product.category;
+                document.getElementById('quantity').value = product.quantity;
+                document.getElementById('price').value = product.price;
+                document.getElementById('location').value = product.location;
+                document.getElementById('description').value = product.description;
+                
+                // Change form submit button to update
+                const submitBtn = document.querySelector('.add-btn');
+                submitBtn.textContent = 'Update Product';
+                submitBtn.onclick = function(e) {
+                    e.preventDefault();
+                    updateProduct(productId);
+                };
+            }
+        }
+
+        function updateProduct(productId) {
+            let products = JSON.parse(localStorage.getItem('products')) || [];
+            const index = products.findIndex(p => p.id === productId);
+            
+            if (index !== -1) {
+                products[index] = {
+                    ...products[index],
+                    name: document.getElementById('productName').value,
+                    category: document.getElementById('category').value,
+                    quantity: document.getElementById('quantity').value,
+                    price: document.getElementById('price').value,
+                    location: document.getElementById('location').value,
+                    description: document.getElementById('description').value,
+                    image: sessionStorage.getItem('tempProductImage') || products[index].image
+                };
+                
+                localStorage.setItem('products', JSON.stringify(products));
+                document.getElementById('productForm').reset();
+                const submitBtn = document.querySelector('.add-btn');
+                submitBtn.textContent = 'Add Product';
+                submitBtn.onclick = null;
+                displayProducts();
+                alert('Product updated successfully!');
+            }
+        }
+
+        // Add success message function
+        function showMessage(message, type = 'success') {
+            const messageContainer = document.getElementById('messageContainer');
+            messageContainer.innerHTML = `
+                <div class="${type}-message">
+                    <i class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</i>
+                    ${message}
+                </div>
+            `;
+            setTimeout(() => {
+                messageContainer.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html> 
